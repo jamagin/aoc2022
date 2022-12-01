@@ -21,6 +21,7 @@ fn main() -> io::Result<()> {
             Ok(item) => current += item,
         }
     }
+    totals.push(current);
 
     let top = totals.into_sorted_vec();
     println!("{}", top[top.len() - 3 ..].iter().fold(0, |acc, x| acc + x));
