@@ -1,3 +1,4 @@
+use std::env;
 use std::fs::File;
 use std::io::{BufReader, self};
 use std::io::prelude::*;
@@ -11,6 +12,7 @@ enum RPSMove {
     Scissors = 3,
 }
 
+#[derive(Copy, Clone)]
 enum RPSResult {
     Loss = 0,
     Draw = 3,
@@ -37,11 +39,38 @@ fn wins(yours: RPSMove, mine: RPSMove) -> RPSResult {
     }
 }
 
-fn play(yours: RPSMove, mine: RPSMove) -> u64 {
+// I dislike the redundancy, wish I'd expressed this stuff in a way
+// I could programatically invert it
+fn get_move(yours: RPSMove, desired_result: RPSResult) -> RPSMove {
+    match yours {
+        RPSMove::Rock => match desired_result {
+            RPSResult::Loss => RPSMove::Scissors,
+            RPSResult::Draw => RPSMove::Rock,
+            RPSResult::Win => RPSMove::Paper,
+        },
+        RPSMove::Paper => match desired_result {
+            RPSResult::Loss => RPSMove::Rock,
+            RPSResult::Draw => RPSMove::Paper,
+            RPSResult::Win => RPSMove::Scissors,
+        },
+        RPSMove::Scissors => match desired_result {
+            RPSResult::Loss => RPSMove::Paper,
+            RPSResult::Draw => RPSMove::Scissors,
+            RPSResult::Win => RPSMove::Rock,
+        },
+    }
+}
+
+fn play_part_1(yours: RPSMove, mine: RPSMove) -> u64 {
     wins(yours, mine) as u64 + mine as u64
 }
 
-fn parse_line(line: String) -> (RPSMove, RPSMove) {
+fn play_part_2(yours: RPSMove, desired_result: RPSResult) -> u64 {
+    let mine = get_move(yours, desired_result.clone());
+    desired_result as u64 + mine as u64
+}
+
+fn parse_line_part_1(line: String) -> (RPSMove, RPSMove) {
     let mut moves = line.split_whitespace();
     (
         match moves.next().expect("didn't get your move") {
@@ -59,16 +88,45 @@ fn parse_line(line: String) -> (RPSMove, RPSMove) {
     )
 }
 
+fn parse_line_part_2(line: String) -> (RPSMove, RPSResult) {
+    let mut moves = line.split_whitespace();
+    (
+        match moves.next().expect("didn't get your move") {
+            "A" => RPSMove::Rock,
+            "B" => RPSMove::Paper,
+            "C" => RPSMove::Scissors,
+            x => panic!("invalid move: {}", x),
+        },
+        match moves.next().expect("didn't get the result") {
+            "X" => RPSResult::Loss,
+            "Y" => RPSResult::Draw,
+            "Z" => RPSResult::Win,            
+            x => panic!("invalid result: {}", x),
+        },
+    )
+}
+
 fn main() -> io::Result<()> {
     let input_data = Path::new(env!("CARGO_MANIFEST_DIR")).join("data").join("2.txt");
+    let part = env::args().nth(1).expect("requires argument").parse::<u64>().expect("1 or 2");
     let fhandle = File::open(input_data)?;
     let br = BufReader::new(fhandle);
     let mut total = 0;
 
     for line in br.lines() {
         let input = line.expect("could not read line");
-        let (yours, mine) = parse_line(input);
-        let score = play(yours, mine);
+        let score = match part {
+            1 => {
+                let (yours, mine) = parse_line_part_1(input);
+                play_part_1(yours, mine)
+            },
+            2 => {
+                let (yours, desired_result) = parse_line_part_2(input);
+                play_part_2(yours, desired_result)
+
+            },
+            _ => panic!("invalid mode")
+        };
         total += score;
     }
  
