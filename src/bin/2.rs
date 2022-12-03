@@ -1,8 +1,7 @@
 use std::env;
-use std::fs::File;
-use std::io::{BufReader, self};
-use std::io::prelude::*;
-use std::path::Path;
+use std::io;
+
+use aoc2022::process_file::process_lines;
 
 // This approach feels really verbose but hopefully clear
 #[derive(Copy, Clone)]
@@ -106,15 +105,13 @@ fn parse_line_part_2(line: String) -> (RPSMove, RPSResult) {
     )
 }
 
+
+
 fn main() -> io::Result<()> {
-    let input_data = Path::new(env!("CARGO_MANIFEST_DIR")).join("data").join("2.txt");
     let part = env::args().nth(1).expect("requires argument").parse::<u64>().expect("1 or 2");
-    let fhandle = File::open(input_data)?;
-    let br = BufReader::new(fhandle);
     let mut total = 0;
 
-    for line in br.lines() {
-        let input = line.expect("could not read line");
+    process_lines("2.txt", |input| {
         let score = match part {
             1 => {
                 let (yours, mine) = parse_line_part_1(input);
@@ -128,7 +125,7 @@ fn main() -> io::Result<()> {
             _ => panic!("invalid mode")
         };
         total += score;
-    }
+    })?;
  
     println!("{}", total);
     Ok(())
