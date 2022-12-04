@@ -1,7 +1,7 @@
 use std::env;
 use std::io;
 
-use aoc2022::process_file::process_lines;
+use aoc2022::process_file::InputFile;
 
 // This approach feels really verbose but hopefully clear
 #[derive(Copy, Clone)]
@@ -111,7 +111,7 @@ fn main() -> io::Result<()> {
     let part = env::args().nth(1).expect("requires argument").parse::<u64>().expect("1 or 2");
     let mut total = 0;
 
-    process_lines("2.txt", |input| {
+    for input in InputFile::new("2.txt") {
         let score = match part {
             1 => {
                 let (yours, mine) = parse_line_part_1(input);
@@ -125,7 +125,7 @@ fn main() -> io::Result<()> {
             _ => panic!("invalid mode")
         };
         total += score;
-    })?;
+    }
  
     println!("{}", total);
     Ok(())

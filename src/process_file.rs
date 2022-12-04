@@ -1,19 +1,31 @@
 use std::fs::File;
-use std::io::{BufReader, self};
+use std::io::{BufReader, Lines};
 use std::io::prelude::*;
-use std::ops::FnMut;
 use std::path::Path;
 
-pub fn process_lines<F>(file_in_data_dir: &str, mut code: F) -> io::Result<()>
-where
-    F: FnMut(String),
-{
-    let input_data = Path::new(env!("CARGO_MANIFEST_DIR")).join("data").join(file_in_data_dir);
-    let fhandle = File::open(input_data)?;
-    let br = BufReader::new(fhandle);
-    for line in br.lines() {
-        let input = line.expect("could not read line");
-        code(input);
+
+
+pub struct InputFile {
+    buf_reader_iter: Lines<BufReader<File>>,
+}
+
+impl InputFile {
+    pub fn new(file_in_data_dir: &str) -> Self {
+        let input_data = Path::new(env!("CARGO_MANIFEST_DIR")).join("data").join(file_in_data_dir);
+        let fhandle = File::open(input_data).expect("failed to open input file");
+        Self {
+            buf_reader_iter: BufReader::new(fhandle).lines(),
+        }
     }
-    Ok(())
+}
+
+impl Iterator for InputFile {
+    type Item = String;
+
+    fn next(&mut self) -> Option<String> {
+        match self.buf_reader_iter.next() {
+            Some(x) => Some(x.expect("failed to read line")),
+            None => None,
+        }
+    }
 }
