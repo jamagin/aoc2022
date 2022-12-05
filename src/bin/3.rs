@@ -1,6 +1,7 @@
 use std::io;
 use std::collections::HashSet;
-use aoc2022::process_file::InputFile;
+
+use aoc2022::util::input_data_to_string;
 
 fn string_rep_to_priority_set(s: String) -> HashSet<u32> {
     HashSet::from_iter(s.chars().map(|c| char_to_priority(c)))
@@ -22,22 +23,17 @@ fn main() -> io::Result<()> {
     let mut accumulate_three: Vec<HashSet<u32>> = Vec::new();
     let mut line_number = 0;
 
-    for input in InputFile::new("3.txt") {
-        let mut first_str = input;
+    for input in input_data_to_string("3.txt")?.lines() {
+        let mut first_str = input.to_string();
         let second_str = first_str.split_off(first_str.len() / 2);
         let first_set = string_rep_to_priority_set(first_str);
         let second_set = string_rep_to_priority_set(second_str);
         let both_compartments = &first_set & &second_set;
         total_pt_1 += both_compartments.iter().sum::<u32>();
-        accumulate_three.push(first_set);
-        accumulate_three.push(second_set);
+        accumulate_three.push(&first_set | &second_set);
         line_number += 1;
         if line_number % 3 == 0 {
-            println!("BATCH: {:#?}", accumulate_three);
-            let mut tmp: HashSet<u32> = HashSet::new();
-            for x in &accumulate_three {
-                tmp = &tmp & &x;
-            }
+            let tmp = &(&accumulate_three[0] & &accumulate_three[1]) & &accumulate_three[2];
             total_pt_2 += tmp.iter().sum::<u32>();
             accumulate_three.clear();
         }

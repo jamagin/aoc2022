@@ -1,7 +1,7 @@
 use std::env;
 use std::io;
 
-use aoc2022::process_file::InputFile;
+use aoc2022::util::input_data_to_string;
 
 // This approach feels really verbose but hopefully clear
 #[derive(Copy, Clone)]
@@ -69,7 +69,7 @@ fn play_part_2(yours: RPSMove, desired_result: RPSResult) -> u64 {
     desired_result as u64 + mine as u64
 }
 
-fn parse_line_part_1(line: String) -> (RPSMove, RPSMove) {
+fn parse_line_part_1(line: &str) -> (RPSMove, RPSMove) {
     let mut moves = line.split_whitespace();
     (
         match moves.next().expect("didn't get your move") {
@@ -87,7 +87,7 @@ fn parse_line_part_1(line: String) -> (RPSMove, RPSMove) {
     )
 }
 
-fn parse_line_part_2(line: String) -> (RPSMove, RPSResult) {
+fn parse_line_part_2(line: &str) -> (RPSMove, RPSResult) {
     let mut moves = line.split_whitespace();
     (
         match moves.next().expect("didn't get your move") {
@@ -111,7 +111,7 @@ fn main() -> io::Result<()> {
     let part = env::args().nth(1).expect("requires argument").parse::<u64>().expect("1 or 2");
     let mut total = 0;
 
-    for input in InputFile::new("2.txt") {
+    for input in input_data_to_string("2.txt")?.lines() {
         let score = match part {
             1 => {
                 let (yours, mine) = parse_line_part_1(input);

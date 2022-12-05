@@ -1,13 +1,13 @@
 use std::collections::BinaryHeap;
 use std::io;
 
-use aoc2022::process_file::InputFile;
+use aoc2022::util::input_data_to_string;
 
 fn main() -> io::Result<()> {
     let mut totals: BinaryHeap<u64> = BinaryHeap::new();
     let mut current: u64 = 0;
 
-    for input in InputFile::new("1.txt") {
+    for input in input_data_to_string("1.txt")?.lines() {
         let res = input.parse::<u64>();
         match res {
             Err(_) => {
