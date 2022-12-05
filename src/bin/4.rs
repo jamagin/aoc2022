@@ -37,24 +37,37 @@ impl TryFrom<&str> for AssignmentPair {
 }
 
 
-fn overlaps(a: &Assignment, b: &Assignment) -> bool {
+fn full_overlap(a: &Assignment, b: &Assignment) -> bool {
     (a.start >= b.start) && (a.end <= b.end)
 }
 
-fn check(pair: AssignmentPair) -> bool {
-    overlaps(&pair.first, &pair.second) || overlaps(&pair.second, &pair.first)
+fn partial_overlap(a: &Assignment, b: &Assignment) -> bool {
+    (a.end >= b.start) && (a.start <= b.end)
+}
+
+fn check_full(pair: &AssignmentPair) -> bool {
+    full_overlap(&pair.first, &pair.second) || full_overlap(&pair.second, &pair.first)
+}
+
+fn check_partial(pair: &AssignmentPair) -> bool {
+    partial_overlap(&pair.first, &pair.second) || partial_overlap(&pair.second, &pair.first)
 }
 
 fn main() -> io::Result<()> {
-    let mut count: u64 = 0;
+    let mut count_full: u64 = 0;
+    let mut count_partial: u64 = 0;
 
     for input in input_data_to_string("4.txt")?.lines() {
-        if check(AssignmentPair::try_from(input).unwrap()) {
-            count += 1;
+        let pair = AssignmentPair::try_from(input).unwrap();
+        if check_full(&pair) {
+            count_full += 1;
+        }
+        if check_partial(&pair) {
+            count_partial += 1;
         }
         
     }
 
-    println!("{}", count);
+    println!("{} {}", count_full, count_partial);
     Ok(())
 }
