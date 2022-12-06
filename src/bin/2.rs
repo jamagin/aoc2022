@@ -65,7 +65,7 @@ fn play_part_1(yours: RPSMove, mine: RPSMove) -> u64 {
 }
 
 fn play_part_2(yours: RPSMove, desired_result: RPSResult) -> u64 {
-    let mine = get_move(yours, desired_result.clone());
+    let mine = get_move(yours, desired_result);
     desired_result as u64 + mine as u64
 }
 
@@ -76,13 +76,13 @@ fn parse_line_part_1(line: &str) -> (RPSMove, RPSMove) {
             "A" => RPSMove::Rock,
             "B" => RPSMove::Paper,
             "C" => RPSMove::Scissors,
-            x => panic!("invalid move: {}", x),
+            x => panic!("invalid move: {x}"),
         },
         match moves.next().expect("didn't get my move") {
             "X" => RPSMove::Rock,
             "Y" => RPSMove::Paper,
             "Z" => RPSMove::Scissors,            
-            x => panic!("invalid move: {}", x),
+            x => panic!("invalid move: {x}"),
         },
     )
 }
@@ -94,13 +94,13 @@ fn parse_line_part_2(line: &str) -> (RPSMove, RPSResult) {
             "A" => RPSMove::Rock,
             "B" => RPSMove::Paper,
             "C" => RPSMove::Scissors,
-            x => panic!("invalid move: {}", x),
+            x => panic!("invalid move: {x}"),
         },
         match moves.next().expect("didn't get the result") {
             "X" => RPSResult::Loss,
             "Y" => RPSResult::Draw,
             "Z" => RPSResult::Win,            
-            x => panic!("invalid result: {}", x),
+            x => panic!("invalid result: {x}"),
         },
     )
 }
@@ -127,6 +127,6 @@ fn main() -> io::Result<()> {
         total += score;
     }
  
-    println!("{}", total);
+    println!("{total}");
     Ok(())
 }

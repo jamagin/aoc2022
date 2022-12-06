@@ -4,7 +4,7 @@ use std::collections::HashSet;
 use aoc2022::util::input_data_to_string;
 
 fn string_rep_to_priority_set(s: String) -> HashSet<u32> {
-    HashSet::from_iter(s.chars().map(|c| char_to_priority(c)))
+    HashSet::from_iter(s.chars().map(char_to_priority))
 }
 
 fn char_to_priority(c: char) -> u32 {
@@ -13,7 +13,7 @@ fn char_to_priority(c: char) -> u32 {
     } else if c.is_uppercase() {
         c as u32 - 'A' as u32 + 27
     } else {
-        panic!("invalid character: {}", c)
+        panic!("invalid character: {c}")
     }
 }
 
@@ -39,6 +39,6 @@ fn main() -> io::Result<()> {
         }
     };
 
-    println!("{} {}", total_pt_1, total_pt_2);
+    println!("{total_pt_1} {total_pt_2}");
     Ok(())
 }

@@ -68,6 +68,6 @@ fn main() -> io::Result<()> {
         
     }
 
-    println!("{} {}", count_full, count_partial);
+    println!("{count_full} {count_partial}");
     Ok(())
 }
