@@ -33,6 +33,8 @@ impl TryFrom<&str> for Stacks {
         Ok(Self{stacks})
     }
 }
+
+#[derive(Debug)]
 struct Instruction {
     count: usize,
     from: usize,
@@ -71,15 +73,13 @@ impl Program {
     fn execute(&self, stacks: & mut Stacks, whole_chunk: bool) {
         for i in &self.instructions {
             if whole_chunk {
-                let mut tmp: Vec<char> = Vec::new();
-                for _ in 0..i.count {
-                    let val = stacks.stacks[i.from].pop_front().unwrap();
-                    tmp.push(val);
-                }
-                for _ in 0..i.count {
-                    let val = tmp.pop().unwrap();
-                    stacks.stacks[i.to].push_front(val);
-                }
+                // the functionality of VecDeque makes this a bit clumsy
+                let mut source = stacks.stacks[i.from].clone();
+                let remain = source.split_off(i.count);
+                let mut old_to = stacks.stacks[i.to].clone();
+                stacks.stacks[i.to] = source;
+                stacks.stacks[i.to].append(&mut old_to);
+                stacks.stacks[i.from] = remain;
             } else {
                 for _ in 0..i.count {
                     let val = stacks.stacks[i.from].pop_front().unwrap();
