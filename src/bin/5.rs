@@ -4,7 +4,7 @@ use std::collections::VecDeque;
 
 use aoc2022::util::input_data_to_string;
 
-#[derive(Debug)]
+#[derive(Clone,Debug)]
 struct Stacks {
     stacks: Vec<VecDeque<char>>,
 }
@@ -30,9 +30,7 @@ impl TryFrom<&str> for Stacks {
             }
         }
         
-        Ok(Self{
-            stacks: stacks,
-        })
+        Ok(Self{stacks})
     }
 }
 struct Instruction {
@@ -70,11 +68,23 @@ impl TryFrom<&str> for Program {
 }
 
 impl Program {
-    fn execute(&self, stacks: & mut Stacks) {
+    fn execute(&self, stacks: & mut Stacks, whole_chunk: bool) {
         for i in &self.instructions {
-            for _ in 0..i.count {
-                let val = stacks.stacks[i.from].pop_front().unwrap();
-                stacks.stacks[i.to].push_front(val);
+            if whole_chunk {
+                let mut tmp: Vec<char> = Vec::new();
+                for _ in 0..i.count {
+                    let val = stacks.stacks[i.from].pop_front().unwrap();
+                    tmp.push(val);
+                }
+                for _ in 0..i.count {
+                    let val = tmp.pop().unwrap();
+                    stacks.stacks[i.to].push_front(val);
+                }
+            } else {
+                for _ in 0..i.count {
+                    let val = stacks.stacks[i.from].pop_front().unwrap();
+                    stacks.stacks[i.to].push_front(val);
+                }
             }
         }
     }
@@ -83,10 +93,13 @@ fn main() -> io::Result<()> {
 
     let input = input_data_to_string("5.txt")?;
     let input_parts: Vec<&str> = input.split("\n\n").collect();
-    let mut stacks = Stacks::try_from(input_parts[0]).unwrap();
+    let mut stacks_1 = Stacks::try_from(input_parts[0]).unwrap();
     let program = Program::try_from(input_parts[1]).unwrap();
-    program.execute(&mut stacks);
-    let answer = &(stacks.stacks[1..]).iter().map(|x| x.get(0).unwrap()).collect::<String>();
-    println!("{answer}");
+    let mut stacks_2 = stacks_1.clone();
+    program.execute(&mut stacks_1, false);
+    let answer_1 = &(stacks_1.stacks[1..]).iter().map(|x| x.front().unwrap()).collect::<String>();
+    program.execute(&mut stacks_2, true);
+    let answer_2 = &(stacks_2.stacks[1..]).iter().map(|x| x.front().unwrap()).collect::<String>();
+    println!("{answer_1} {answer_2}");
     Ok(())
 }
