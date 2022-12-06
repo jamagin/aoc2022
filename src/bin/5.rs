@@ -16,7 +16,6 @@ impl TryFrom<&str> for Stacks {
         // these are fixed with fields, letters are in columns (stack_num - 1) * 4 + 1
         let mut all_lines: Vec<&str> = s.lines().collect();
         assert!(" 1   2   3   4   5   6   7   8   9 ".contains(all_lines.pop().unwrap()));
-        //println!("{}", all_lines.pop().unwrap());
 
         let mut stacks: Vec<VecDeque<char>> = Vec::new();
         stacks.resize(10, VecDeque::new());
@@ -25,7 +24,7 @@ impl TryFrom<&str> for Stacks {
             for i in 1..10 {
                 let value = c[(i-1)*4+1];
                 if value.is_uppercase() {
-                    stacks[i].push_back(value);
+                    stacks[i].push_front(value);
                 }
             }
         }
@@ -73,17 +72,14 @@ impl Program {
     fn execute(&self, stacks: & mut Stacks, whole_chunk: bool) {
         for i in &self.instructions {
             if whole_chunk {
-                // the functionality of VecDeque makes this a bit clumsy
                 let mut source = stacks.stacks[i.from].clone();
-                let remain = source.split_off(i.count);
-                let mut old_to = stacks.stacks[i.to].clone();
-                stacks.stacks[i.to] = source;
-                stacks.stacks[i.to].append(&mut old_to);
-                stacks.stacks[i.from] = remain;
+                let mut moved = source.split_off(source.len() - i.count);
+                stacks.stacks[i.to].append(&mut moved);
+                stacks.stacks[i.from]= source;
             } else {
                 for _ in 0..i.count {
-                    let val = stacks.stacks[i.from].pop_front().unwrap();
-                    stacks.stacks[i.to].push_front(val);
+                    let val = stacks.stacks[i.from].pop_back().unwrap();
+                    stacks.stacks[i.to].push_back(val);
                 }
             }
         }
@@ -97,9 +93,9 @@ fn main() -> io::Result<()> {
     let program = Program::try_from(input_parts[1]).unwrap();
     let mut stacks_2 = stacks_1.clone();
     program.execute(&mut stacks_1, false);
-    let answer_1 = &(stacks_1.stacks[1..]).iter().map(|x| x.front().unwrap()).collect::<String>();
+    let answer_1 = &(stacks_1.stacks[1..]).iter().map(|x| x.back().unwrap()).collect::<String>();
     program.execute(&mut stacks_2, true);
-    let answer_2 = &(stacks_2.stacks[1..]).iter().map(|x| x.front().unwrap()).collect::<String>();
+    let answer_2 = &(stacks_2.stacks[1..]).iter().map(|x| x.back().unwrap()).collect::<String>();
     println!("{answer_1} {answer_2}");
     Ok(())
 }
